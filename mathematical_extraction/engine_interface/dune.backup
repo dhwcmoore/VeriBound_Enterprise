@@ -1,5 +1,0 @@
-(library
- (name boundary_classifier)
- (public_name veribound-process-architecture.boundary_classifier)
- (modules boundary_classifier)
- (libraries veribound-process-architecture.flocq_engine yojson))

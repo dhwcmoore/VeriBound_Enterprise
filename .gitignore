@@ -3,9 +3,24 @@ _build/
 *.o
 *.cmx
 *.cmi
+*.cmo
 *.cmti
 *.exe
+*.vo
+*.vok
+*.vos
+*.glob
 
-# Patches / backups
-*.patch
-*before_patch.md
+# Backup files
+*.backup
+*.bak
+*~
+
+# Editor files
+.vscode/
+*.swp
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
