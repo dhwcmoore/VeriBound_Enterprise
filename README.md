@@ -1,5 +1,6 @@
 # VeriBound Enterprise
 > **Copyright © 2026 Duston Moore. All Rights Reserved.**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18155887.svg)](https://doi.org/10.5281/zenodo.18155887)
 > *Licensed under the MIT License.*
 
 ---
