@@ -1,0 +1,10 @@
+{
+  "name": "VeriBound Kernel Env",
+  "image": "ocaml/opam:debian-12-ocaml-5.1", 
+  "postCreateCommand": "opam install -y dune cmdliner yojson && dune build",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ocamllabs.ocaml-platform"]
+    }
+  }
+}
