@@ -1,4 +1,10 @@
 # VeriBound Enterprise
+> **Copyright © 2026 Duston Moore. All Rights Reserved.**
+> *Licensed under the MIT License.*
+
+---
+
+# VeriBound Enterprise
 > **High-Assurance Data Governance Kernel**
 
 VeriBound is a formally verified boundary enforcement engine. It prevents "Data Blind Spots" (values falling into undefined gaps) by using a strict mathematical schema rather than standard if-then logic.
