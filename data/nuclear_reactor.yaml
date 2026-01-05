@@ -1,0 +1,18 @@
+---
+domain:
+  name: "PWR Reactor Core Temperature"
+  unit: "Celsius"
+  description: "Reactor Coolant System (RCS) Hot Leg Temperature thresholds."
+
+boundaries:
+  # Normal Operation (Full Power)
+  - range: [280.0, 320.0]
+    category: "Normal_Operation"
+
+  # Warning Zone (Reduce Power)
+  - range: [320.0, 330.0]
+    category: "Alarm_High_Temp"
+
+  # SCRAM (Automatic Shutdown Required)
+  - range: [330.0, 400.0]
+    category: "CRITICAL_SCRAM_IMMEDIATE"

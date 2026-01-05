@@ -42,3 +42,20 @@ VeriBound correctly rejects values that fall between defined rules (Standard par
 ## 🛡 Verification Status
 * **Runtime:** OCaml 5.x (Type-safe)
 * **Specification:** Coq 8.19+ (Mathematical Proofs preserved in `lib/coq`)
+
+## 🌍 Supported Domains (Demo)
+The kernel is domain-agnostic. Current configuration files include:
+
+### 1. 🏦 Finance (Basel III)
+Protect against bank insolvency by enforcing capital requirements.
+```bash
+./_build/default/bin/main.exe inspect basel_iii 2.0
+# ✅ RESULT: Insolvent_Regulatory_Breach
+```
+
+### 2. ☢️ Nuclear Safety (PWR Reactor)
+Trigger emergency shutdown (SCRAM) when core temperature exceeds limits.
+```bash
+./_build/default/bin/main.exe inspect nuclear_reactor 335.0
+# ✅ RESULT: CRITICAL_SCRAM_IMMEDIATE
+```

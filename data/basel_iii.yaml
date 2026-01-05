@@ -1,0 +1,18 @@
+---
+domain:
+  name: "Basel III: CET1 Capital Ratio"
+  unit: "Percent"
+  description: "Common Equity Tier 1 capital requirements to prevent bank insolvency."
+
+boundaries:
+  # The Danger Zone (Bank is failing)
+  - range: [0.0, 4.5]
+    category: "Insolvent_Regulatory_Breach"
+
+  # The Buffer Zone (Bank is weak but surviving)
+  - range: [4.5, 6.0]
+    category: "Undercapitalized_Buffer_Use"
+
+  # The Safe Zone (Bank is healthy)
+  - range: [6.0, 100.0]
+    category: "Well_Capitalized"
