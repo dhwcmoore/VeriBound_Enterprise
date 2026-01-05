@@ -1,7 +1,4 @@
 (executable
- (name main)                         ;; MUST match bin/main.ml
- (public_name veribound)            ;; Output will be veribound.exe
- (modules main)                     ;; Uses Main module
- (libraries
-  cmdliner
-  veribound-process-architecture.engine_interface))
+ (public_name veribound)
+ (name main)
+ (libraries veribound.kernel cmdliner))

@@ -1,0 +1,14 @@
+---
+domain:
+  name: "Pharma Dose Safety"
+  unit: "mg/kg"
+  description: "Safety thresholds for active pharmaceutical ingredients."
+
+boundaries:
+  - range: [0.1, 2.0]
+    category: "Therapeutic_Safe"
+  
+  - range: [5.0, 10.0]
+    category: "Toxic_High"
+
+# Note the gap between 2.0 and 5.0 is intentional (Undefined/Lethal)

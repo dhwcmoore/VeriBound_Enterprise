@@ -1,4 +1,0 @@
-(library
- (name test_support)
- (modules check_overlap_and_coverage)
- (libraries veribound-process-architecture.engine_interface yojson))

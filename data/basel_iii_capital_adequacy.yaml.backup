@@ -1,0 +1,7 @@
+name: Basel III Capital Adequacy
+unit: %
+- range: ["0.0", "4.5"] category: Below_Minimum_CRITICAL
+- range: ["4.5", "6.0"] category: Conservation_Buffer_WATCH  
+- range: ["6.0", "8.0"] category: Adequate_SAFE
+- range: ["8.0", "100.0"] category: Well_Capitalized_EXCELLENT
+global_bounds: ["0.0", "100.0"]

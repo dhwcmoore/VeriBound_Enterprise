@@ -1,26 +1,6 @@
-# Build outputs
 _build/
-*.o
-*.cmx
-*.cmi
-*.cmo
-*.cmti
-*.exe
-*.vo
-*.vok
-*.vos
-*.glob
-
-# Backup files
-*.backup
-*.bak
-*~
-
-# Editor files
-.vscode/
-*.swp
-.idea/
-
-# OS files
 .DS_Store
-Thumbs.db
+*.merlin
+*~
+*.opam
+.dune-workspace

@@ -1,5 +1,5 @@
-From Stdlib Require Import Reals List String Recdef.
-From Stdlib Require Import Lra.
+Require Import Reals List String Recdef.
+Require Import Lra.
 Import ListNotations.
 Open Scope R_scope.
 

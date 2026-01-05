@@ -1,0 +1,6 @@
+(library
+ (name veribound_kernel)
+ (public_name veribound.kernel)
+ (libraries str yojson)
+ ; Allow the kernel to see the Coq theories (for future extraction)
+ (wrapped false))

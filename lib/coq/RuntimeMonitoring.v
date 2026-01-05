@@ -1,6 +1,6 @@
-(From Coq Require Import Reals.
-From Coq Require Import List.
-From Coq Require Import String.
+(Require Import Reals.
+Require Import List.
+Require Import String.
 
 Import ListNotations.
 Open Scope R_scope.

@@ -1,4 +1,0 @@
-(executable
- (public_name veribound-api)
- (name api_server)
- (libraries str unix))

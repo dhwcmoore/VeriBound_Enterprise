@@ -1,5 +1,0 @@
-(library
- (name flocq_engine)
- (public_name veribound-process-architecture.flocq_engine)
- (modules shared_types engine_interface flocq_engines flocq_engine extracted_flocq)
- (libraries yojson str))

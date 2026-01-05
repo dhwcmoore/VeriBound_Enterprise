@@ -1,0 +1,23 @@
+---
+domain:
+  name: "Nuclear Radiation Protection"
+  unit: "mSv"
+  description: >
+    Radiation dose limits per NRC 10 CFR 20.
+    Authority: NRC 10 CFR 20.1301 / 20.1201
+
+# REQUIRED: Explicitly permit high values up to 1000.0
+global_bounds: [0.0, 1000.0]
+
+boundaries:
+  - range: [0.0, 1.0]
+    category: "Public_Exposure_SAFE (10 CFR 20.1301)"
+
+  - range: [1.0, 50.0]
+    category: "Occupational_Exposure_MONITORED (10 CFR 20.1201)"
+
+  - range: [50.0, 250.0]
+    category: "Emergency_Exposure_CRITICAL (Auth Required)"
+
+  - range: [250.0, 1000.0]
+    category: "Evacuation_Required_EMERGENCY (Immediate Action)"

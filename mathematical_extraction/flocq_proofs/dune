@@ -1,4 +1,0 @@
-(coq.theory
- (name flocq_proofs)
- (modules VerifiedBoundaryHelpers)
- (flags :standard -w -notation-overridden -w -deprecated-syntactic-definition))

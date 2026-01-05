@@ -1,5 +1,0 @@
-(library
- (name engine_interface)
- (public_name veribound-process-architecture.engine_interface)
- (modules engine_interface boundary_classifier domain_manager)
- (libraries yojson veribound-process-architecture.runtime_classifier))
