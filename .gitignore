@@ -23,3 +23,22 @@ _build/
 # Backup files
 *.backup
 *~
+
+# Build artifacts
+*.cmi
+*.cmo
+*.cmx
+*.cma
+*.cmxa
+*.o
+*.a
+*.exe
+*.glob
+*.vo
+*.vok
+*.vos
+_build/
+
+# Backup files
+*.backup
+*~
