@@ -121,6 +121,19 @@ module DomainManager = struct
       in
       
       (* Extract boundaries *)
+      (* Helper to pull the RHS of a `key: value` line *)
+      let extract_field_value line =
+        if String.contains line ':' then
+          let parts = String.split_on_char ':' line in
+          match parts with
+          | _key :: value_parts ->
+            let value = String.trim (String.concat ":" value_parts) in
+            String.trim (String.map (function '"' -> ' ' | c -> c) value)
+          | _ -> ""
+        else ""
+      in
+
+      (* Parse explicit `boundaries:` blocks where each item has `- range: [a, b]` and a following `category:` line *)
       let extract_boundaries lines =
         let rec find_boundaries_start = function
           | [] -> []
@@ -132,15 +145,12 @@ module DomainManager = struct
             | [] -> List.rev acc
             | line :: rest ->
               if String.starts_with ~prefix:"- range:" line then
-                (* Parse range: [0.0, 5.7] *)
                 let range_part = String.sub line 9 (String.length line - 9) in
                 let range_part = String.trim range_part in
                 let range_part = String.map (function '[' | ']' -> ' ' | c -> c) range_part in
                 let range_nums = String.split_on_char ',' range_part in
                 let lower = Float.of_string (String.trim (List.hd range_nums)) in
                 let upper = Float.of_string (String.trim (List.nth range_nums 1)) in
-                
-                (* Extract category and color from following lines *)
                 let (category, color, remaining) = extract_boundary_fields rest in
                 let boundary = { range = (lower, upper); category; color } in
                 extract_one_boundary (boundary :: acc) remaining
@@ -156,18 +166,57 @@ module DomainManager = struct
             let cat = extract_field_value line1 in
             (cat, None, rest)
           | rest -> ("unknown", None, rest)
-        and extract_field_value line =
-          if String.contains line ':' then
-            let parts = String.split_on_char ':' line in
-            match parts with
-            | _key :: value_parts ->
-              let value = String.trim (String.concat ":" value_parts) in
-              String.trim (String.map (function '"' -> ' ' | c -> c) value)
-            | _ -> "unknown"
-          else "unknown"
         in
         find_boundaries_start lines
       in
+
+      (* Parse `categories:` format where each category has a `name:` and one or more numeric fields like `adverse_event_rate: [a, b]` or `accuracy_percent: [a, b]`.
+         We heuristically use the first numeric range field found in the category as the classification range. *)
+      let extract_categories lines =
+        let rec find_categories_start = function
+          | [] -> []
+          | line :: rest -> if String.trim line = "categories:" then extract_category_list rest else find_categories_start rest
+        and extract_category_list lines =
+          let rec extract acc = function
+            | [] -> List.rev acc
+            | line :: rest ->
+              if String.starts_with ~prefix:"- name:" line then
+                let name = extract_field_value line in
+                let (range_opt, remaining) = extract_category_fields rest in
+                (match range_opt with
+                 | Some (l,u) ->
+                     let boundary = { range = (l,u); category = name; color = None } in
+                     extract (boundary :: acc) remaining
+                 | None -> extract acc remaining)
+              else extract acc rest
+          and extract_category_fields = function
+            | [] -> (None, [])
+            | line :: rest as all_lines ->
+                (* Stop if next category begins *)
+                if String.starts_with ~prefix:"- name:" (String.trim line) then (None, all_lines)
+                else if String.contains line ':' then
+                  let key_val = extract_field_value line in
+                  if String.contains key_val '[' then
+                    (* parse a range like [0.0, 0.05] *)
+                    let nums = String.map (function '[' | ']' -> ' ' | c -> c) key_val in
+                    let parts = String.split_on_char ',' nums in
+                    if List.length parts >= 2 then
+                      let l = Float.of_string (String.trim (List.hd parts)) in
+                      let u = Float.of_string (String.trim (List.nth parts 1)) in
+                      (Some (l,u), rest)
+                    else extract_category_fields rest
+                  else extract_category_fields rest
+                else extract_category_fields rest
+          in
+          extract [] lines
+        in
+        find_categories_start lines
+      in
+
+      (* Combine boundaries from both `boundaries:` and `categories:` sources *)
+      let boundaries_from_boundaries = extract_boundaries non_empty_lines in
+      let boundaries_from_categories = extract_categories non_empty_lines in
+      let all_boundaries = boundaries_from_boundaries @ boundaries_from_categories in
       
       (* Extract global_bounds: [0.0, 20.0] *)
       let extract_global_bounds lines =
@@ -185,7 +234,7 @@ module DomainManager = struct
       let name = Option.value (extract_domain_field "name" non_empty_lines) ~default:"Unknown Domain" in
       let unit = Option.value (extract_domain_field "unit" non_empty_lines) ~default:"units" in
       let description = extract_domain_field "description" non_empty_lines in
-      let boundaries = extract_boundaries non_empty_lines in
+      let boundaries = all_boundaries in
       let global_bounds = extract_global_bounds non_empty_lines in
       
       (* Create raw_domain *)

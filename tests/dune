@@ -1,0 +1,3 @@
+(executable
+ (name test_alcotest)
+ (libraries veribound.kernel alcotest))

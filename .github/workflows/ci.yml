@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up OCaml
+      uses: avsm/setup-ocaml@v2
+      with:
+        ocaml-version: '5.1.1'
+        opam-setup: true
+    - name: Install dependencies
+      run: |
+        opam install dune alcotest -y
+    - name: Build
+      run: dune build --profile release
+    - name: Run Alcotest suite
+      run: dune exec -- tests/test_alcotest.exe
+    - name: Run Dune test runner
+      run: dune runtest --no-buffering

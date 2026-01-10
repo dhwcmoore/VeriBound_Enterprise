@@ -1,130 +1,85 @@
-# VeriBound Enterprise
-> **Copyright © 2026 Duston Moore. All Rights Reserved.**
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18155887.svg)](https://doi.org/10.5281/zenodo.18155887)
-> *Licensed under the MIT License.*
+# VeriBound Enterprise  — High-Assurance Boundary Enforcement 
+
+**VeriBound** is a mathematically verified boundary enforcement kernel that prevents "data blind spots" by using formally proven boundary definitions rather than ad-hoc conditional logic.
 
 ---
 
-# VeriBound Enterprise
-> **High-Assurance Data Governance Kernel**
+##  Highlights (What changed)
+- **Improved YAML support:** Parser supports both `boundaries:` (explicit ranges) and `categories:` schemas commonly used in domain definitions. For `categories:`, the parser heuristically picks the first numeric range field (e.g., `adverse_event_rate: [a,b]`) as the classification range.
+- **Safety-first behavior:** Values that fall outside any defined range correctly yield `Unknown` (refusal), surfacing safety gaps as intended.
+- **Test coverage:** Representative classification tests (including edge cases, safety gaps, negative values, and parse errors) are in `tests/test_classifications.ml` (legacy), and a richer, structured test suite is implemented with **Alcotest** in `tests/test_alcotest.ml`.
+- **CI:** A GitHub Actions workflow (`.github/workflows/ci.yml`) builds the project and runs both the legacy and Alcotest suites on push/PR to `main`.
+- **Utilities:** `bin/scan_domains.exe` scans all YAMLs in `data/` and reports which domains load and how many boundaries were extracted.
 
-VeriBound is a formally verified boundary enforcement engine. It prevents "Data Blind Spots" (values falling into undefined gaps) by using a strict mathematical schema rather than standard if-then logic.
+---
 
-## 🏗 Architecture
-The system follows a "Kernel-Interface" separation:
-* **`lib/runtime` (The Kernel):** Pure OCaml logic that enforces boundary definitions.
-* **`lib/coq` (The Specification):** Formal proofs (in Coq/Flocq) defining the mathematical correctness of the boundaries.
-* **`data/` (The Rules):** YAML-based domain definitions (e.g., Pharma, Nuclear).
-* **`bin/` (The Interface):** CLI tool for inspecting values.
+##  Quick Start
 
-## 🚀 Quick Start
-
-### 1. Build the Project
+### 1) Build
 ```bash
 dune build
 ```
 
-### 2. Run a Verification
-Inspect a value against a domain (e.g., Pharma Dose Safety):
+### 2) Inspect a value (CLI)
 ```bash
+dune exec -- bin/main.exe inspect <domain> <value>
+# Example
 dune exec -- bin/main.exe inspect pharma_dose_safety 1.5
-# ✅ RESULT: Therapeutic_Safe
+# → RESULT: Therapeutic_Safe
 ```
 
-Or use the built executable directly:
+### 3) Run the scanner (reports loader status for each YAML)
 ```bash
-./_build/default/bin/main.exe inspect pharma_dose_safety 1.5
+dune exec -- bin/scan_domains.exe
 ```
 
-### 3. The "Safety Gap" Demo
-VeriBound correctly rejects values that fall between defined rules (Standard parsers often fail here):
+### 4) Run tests locally
 ```bash
-dune exec -- bin/main.exe inspect pharma_dose_safety 3.5
-# ✅ RESULT: Unknown (Refused)
+dune exec -- tests/test_alcotest.exe
+# or run the full dune build and the test runner
+dune build && dune runtest
 ```
 
-## 🧪 Testing
+---
 
-### Run Individual Tests
-```bash
-# Test domain loader
-ocamlfind ocamlopt -package yojson -linkpkg -I +str str.cmxa -I _build/default/lib/runtime veribound_kernel.cmxa test_domain_loader.ml -o test_domain_loader && ./test_domain_loader
+##  Supported YAML formats & heuristics
+- `boundaries:` — Expected explicit list of `- range: [low, high]` entries with a subsequent `category:` line.
+- `categories:` — Each category may include named numeric range fields (e.g., `adverse_event_rate: [a,b]`, `accuracy_percent: [l,u]`); the current parser uses the **first numeric range** found in a category as its range.
 
-# Test module access
-ocamlfind ocamlopt -package yojson -linkpkg -I +str str.cmxa -I _build/default/lib/runtime veribound_kernel.cmxa test_module_access.ml -o test_module_access && ./test_module_access
+Notes:
+- The parser is intentionally conservative: missing numeric ranges, overlapping/malformed ranges, or values outside `global_bounds` are surfaced as `Unknown` to avoid unsafe assumptions.
 
-# Test integration
-ocamlfind ocamlopt -package yojson -linkpkg -I +str str.cmxa -I _build/default/lib/runtime veribound_kernel.cmxa test_integration.ml -o test_integration && ./test_integration
-```
+---
 
-### Verify All Domains
-Test the CLI against all available domains:
-```bash
-dune exec -- bin/main.exe inspect diabetes 150
-dune exec -- bin/main.exe inspect basel_iii 2.0
-dune exec -- bin/main.exe inspect nuclear_reactor 335.0
-dune exec -- bin/main.exe inspect aqi 250
-```
+##  Test & CI
+- Tests: Alcotest-based suite `tests/test_alcotest.ml` contains representative and edge-case checks (e.g., safety gaps, upper/lower bound exclusivity, parse errors).
+- CI: `.github/workflows/ci.yml` builds the project and runs the Alcotest suite (and `dune runtest`) on push/PR to `main`.
 
-## 📂 Project Structure
+If you want richer test output, we use Alcotest for deterministic, well-formatted test results.
+
+---
+
+##  Verification & Formal Guarantees
+- The Coq sources in `lib/coq/` (e.g., `SafetyCore.v`, domain-specific proofs) hold the formal specifications and safety theorems.
+- Extracted parameters (via `extraction` scripts) are used to keep runtime values consistent with the proven specs.
+
+---
+
+##  Project layout
 | Directory | Purpose |
 |-----------|---------|
-| `lib/`    | Core logic (Kernel) |
-| `bin/`    | Executable entry point |
-| `data/`   | Domain configuration files |
-| `tests/`  | Integration tests |
+| `lib/`    | Kernel & runtime logic |
+| `lib/coq` | Formal specs & proofs (Coq / Flocq) |
+| `bin/`    | CLI tools (`main.exe`, `scan_domains.exe`) |
+| `data/`   | Domain YAML definitions |
+| `tests/`  | Lightweight classification tests |
 
-## 🛡 Verification Status
-* **Runtime:** OCaml 5.x (Type-safe)
-* **Specification:** Coq 8.19+ (Mathematical Proofs preserved in `lib/coq`)
+---
 
-## 🌍 Supported Domains (Demo)
-The kernel is domain-agnostic. Current configuration files include:
+##  Contributing
+- Add new domain YAMLs under `data/`. Prefer `boundaries:` for explicit ranges. If you use `categories:`, include a clear numeric range field.
+- Add a test case in `tests/test_alcotest.ml` for the representative value you expect.
+- Push and open a PR — CI will run the test suite automatically.
 
-### 1. 🏦 Finance (Basel III)
-Protect against bank insolvency by enforcing capital requirements.
-```bash
-dune exec -- bin/main.exe inspect basel_iii 2.0
-# ✅ RESULT: Insolvent_Regulatory_Breach
-```
+---
 
-### 2. ☢️ Nuclear Safety (PWR Reactor)
-Trigger emergency shutdown (SCRAM) when core temperature exceeds limits.
-```bash
-dune exec -- bin/main.exe inspect nuclear_reactor 335.0
-# ✅ RESULT: CRITICAL_SCRAM_IMMEDIATE
-```
-
-### 3. 💊 Pharma Dose Safety
-Verify medication dosages are within therapeutic range.
-```bash
-dune exec -- bin/main.exe inspect pharma_dose_safety 1.5
-# ✅ RESULT: Therapeutic_Safe
-```
-
-### 4. 🌍 Air Quality Index (AQI)
-Monitor environmental air quality compliance.
-```bash
-dune exec -- bin/main.exe inspect aqi 250
-```
-
-### 5. 🏥 Diabetes Management
-Blood glucose boundary enforcement for patient safety.
-```bash
-dune exec -- bin/main.exe inspect diabetes 150
-```
-
-## 📋 Complete List of Domains
-- aml_cash (Anti-Money Laundering)
-- aqi, aqi_fixed (Air Quality Index)
-- basel_corporate, basel_iii, basel_iii_capital_adequacy (Financial Regulation)
-- blood_pressure (Medical)
-- ccar_capital_ratios, ccar_loss_rates, ccar_stress_testing, ccar_stress (Banking Stress Tests)
-- clinical_trial_safety (Pharma)
-- diabetes (Medical)
-- frtb_market_risk (Financial Risk)
-- liquidity_risk_lcr_nsfr (Banking Liquidity)
-- medical, medical_device_performance (Medical Devices)
-- mifid2_best_execution (Financial Compliance)
-- nuclear_emergency_action_levels, nuclear_radiation_limits, nuclear_reactor, nuclear_reactor_protection (Nuclear Safety)
-- pharma_dose_safety (Pharma)
