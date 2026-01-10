@@ -4,3 +4,22 @@ _build/
 *~
 *.opam
 .dune-workspace
+
+# Build artifacts
+*.cmi
+*.cmo
+*.cmx
+*.cma
+*.cmxa
+*.o
+*.a
+*.exe
+*.glob
+*.vo
+*.vok
+*.vos
+_build/
+
+# Backup files
+*.backup
+*~
